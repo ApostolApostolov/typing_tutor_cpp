@@ -33,6 +33,17 @@ private:
     std::thread wait_thread{[this]() {wait_then_call(); }};
 };
 
+//Potential fix 
+void timer() {
+    std::cout << "Start\n";
+    for(int i=0;i<10;++i)
+    {
+        std::cout << (10-i) << '\n';
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    std::cout << "DONE\n";
+}
+
 
 
 //universal functions

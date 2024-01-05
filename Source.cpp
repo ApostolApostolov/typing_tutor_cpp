@@ -65,10 +65,6 @@ void statistics() {
 
 }
 
-// <3> VIEW USER RECORDS
-void user_records() {
-
-}
 
 // <4> ABOUT
 void about() {

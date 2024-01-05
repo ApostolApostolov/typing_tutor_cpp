@@ -8,40 +8,30 @@ using namespace std;
 #include <windows.h> 
 #include <iomanip> 
 
+
+
+#include <chrono>
+#include <iostream>
+#include <future>
+
 //constants
 char A_TO_Z_EXCERSISE_STR[] = "abcdefghijklmnopqrstuvwxyz.,";
 
-class Timer {
-public:
-    Timer(size_t time, const std::function<void(void)>& f) : time{std::chrono::milliseconds{time}}, f{f} {}
-    ~Timer() { wait_thread.join(); }
 
-private:
-    void wait_then_call()
-    {
-        std::unique_lock<std::mutex> lck{mtx};
-        for(int i{10}; i > 0; --i) {
-            std::cout << "Thread " << wait_thread.get_id() << " countdown at: " << '\t' << i << '\n';
-            cv.wait_for(lck, time / 10);
-        }
-        f();
-    }
-    std::mutex mtx;
-    std::condition_variable cv{};
-    std::chrono::milliseconds time;
-    std::function <void(void)> f;
-    std::thread wait_thread{[this]() {wait_then_call(); }};
-};
+
+
 
 //Potential fix 
-void timer() {
-    std::cout << "Start\n";
-    for(int i=0;i<10;++i)
-    {
-        std::cout << (10-i) << '\n';
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    std::cout << "DONE\n";
+bool fntimer() {
+	cout << "Start\n";
+	for (int i = 0; i < 10; ++i)
+	{
+		//std::cout << (10 - i) << '\n';
+		
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+	std::cout << "DONE\n";
+	return true;
 }
 
 
@@ -98,6 +88,10 @@ void statistics() {
 
 }
 
+// <3> VIEW USER RECORDS
+void user_records() {
+
+}
 
 // <4> ABOUT
 void about() {
@@ -144,8 +138,14 @@ void a_to_z() {
 	float mistakes = 0.0;
 	float total_lenght = 0.0;
 
+	//std::future<bool> fobj = std::async(fnprime, 4);
+	future<bool> fobj =  std::async (fntimer);
+	
+
 	while (true)
-	{
+	{	
+		// TODO stop the the game when the counter reaches 0
+		//bool temp =  fobj; 
 		user_input = char(_getch());
 		//only accept characters from set number to set number and no backspace or related
 		//timer

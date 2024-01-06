@@ -8,8 +8,27 @@ using namespace std;
 #include <windows.h> 
 #include <iomanip> 
 
+
+
+#include <chrono>
+#include <iostream>
+#include <future>
+
 //constants
 char A_TO_Z_EXCERSISE_STR[] = "abcdefghijklmnopqrstuvwxyz.,";
+
+int timer_finished = 0;
+
+bool fntimer() {
+	int seconds = 10; //DEBUG VALUE
+	for (int i = 0; i < seconds; ++i)
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+	timer_finished = 1;
+	return true;
+}
 
 
 
@@ -33,6 +52,20 @@ void mainMenu() {
 
 
 
+void display_stats_end_game(int correct, int mistakes) {
+	//TODO WPM TO USE TIME(60 sec)
+
+	float total_lenght = correct + mistakes;
+	cout << "lenght " << total_lenght << endl;
+	cout << "mistakes " << mistakes << endl;
+	cout << "correct  " << correct << endl;
+
+
+	float WPM = total_lenght / 5 / 0.5; 
+	float accuracy = ((total_lenght - mistakes) / total_lenght) * 100;
+	cout << std::fixed << setprecision(2) << "WPM: " << WPM << endl;
+	cout << "Accuracy: " << accuracy;
+}
 
 void createUser() {
 	//creating user
@@ -65,6 +98,10 @@ void statistics() {
 
 }
 
+// <3> VIEW USER RECORDS
+void user_records() {
+
+}
 
 // <4> ABOUT
 void about() {
@@ -111,11 +148,33 @@ void a_to_z() {
 	float mistakes = 0.0;
 	float total_lenght = 0.0;
 
+	//std::future<bool> fobj = std::async(fnprime, 4);
+	//future<bool> fobj =  std::async (fntimer);
+	//std::chrono::milliseconds span(100);
+
+	//while (fobj.wait_for(span) == std::future_status::timeout) {
+	//	cout << std::flush;
+	//	cout << "waiting";
+	//}
+	
+	auto r = std::async(std::launch::async, fntimer);
+	bool result = NULL;
+	
+	//cout << result << endl;
+		
+
 	while (true)
-	{
+	{	
+		// allows for one more letter
+		if (timer_finished == 1) {
+			cout << "\nGame over" << endl;
+			display_stats_end_game(correct_letter, mistakes);
+			Sleep(2);
+			return;
+		}
+
 		user_input = char(_getch());
 		//only accept characters from set number to set number and no backspace or related
-		//timer
 		//add sleep where nothing happens for a few second after stats are shown.
 
 		if (user_input == current_practise_string[index]) {
@@ -152,7 +211,7 @@ void a_to_z() {
 
 
 		//RESET GAME
-		if (index == 28) {
+		if (index == 28) { // DEBUG change to array.lenght
 			//every 3 time it reverse it 
 			screenCleaner();
 
@@ -162,27 +221,13 @@ void a_to_z() {
 
 			if (reverse_text == 1) { //debug logic
 				strncpy(current_practise_string, reverse, 29);
-				//reverse_text = 0;
-
-				//ending (before timer implementation)
-				float total_lenght = mistakes + correct_letter;
-				
-
-				cout << "lenght " << total_lenght <<endl;
-				cout << "mistakes " << mistakes << endl;
-				cout << "correct  " << correct_letter << endl;
-
-				
-				float WPM = total_lenght/ 5 / 0.5;
-				float accuracy = ((total_lenght - mistakes) / total_lenght) * 100;
-				cout << std::fixed << setprecision(2) << "WPM: " << WPM << endl;
-				cout << "Accuracy: " << accuracy;
-				return;
+				reverse_text = 0;
 			}
 			cout << "Type '!' to exit" << endl;
 			cout << current_practise_string << endl;
+
+			}
 		}
-	}
 
 
 }

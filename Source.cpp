@@ -1,8 +1,10 @@
 
 #include <iostream>
+
 using namespace std;
 #include <conio.h>
 
+#include <fstream>
 #include <string>
 #include <cstring>
 #include <windows.h> 
@@ -11,6 +13,7 @@ using namespace std;
 
 
 #include <chrono>
+using namespace std::chrono;
 #include <iostream>
 #include <future>
 
@@ -23,6 +26,7 @@ bool fntimer() {
 	int seconds = 10; //DEBUG VALUE
 	for (int i = 0; i < seconds; ++i)
 	{
+		//cout << i << endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
@@ -37,9 +41,61 @@ void screenCleaner() {
 	system("cls");
 }
 
-void loadFiles() {
+void writeStatInFile() {
 	//loads .DAT file it stores statistics
+
+	ofstream stats("stats.dat");
+
+	cout << "kdl 50 87";
+	
+	stats.close();
 }
+
+//Showing Stats
+void separateStringFromStats(string stat) {
+	vector<string> res;
+	int pos = 0;
+
+	while (pos < stat.size()) {
+		pos = stat.find(" ");
+		
+		res.push_back(stat.substr(0, pos));
+		
+		stat.erase(0, pos + 1);	
+	}
+	//TODO fix the loop to not skip the last one
+	//it skips the last one 
+	res.push_back(stat);
+
+	cout << res[0] << "		";
+	cout << res[1] << "	";
+	cout << res[2] << "%" << endl;
+
+
+
+
+}
+
+void readFileAndDisplay() {
+	string myText;
+
+	ifstream stats("stats.dat");
+
+	screenCleaner();
+
+	cout << "Initials	";
+	cout << "WPM	";
+	cout << "Accuracy" << endl;
+
+
+	while (getline(stats, myText)) {
+		 separateStringFromStats(myText);
+	}
+
+	stats.close();
+}
+
+
 
 void mainMenu() {
 	cout << "***MAIN MENU***" << endl;
@@ -52,7 +108,7 @@ void mainMenu() {
 
 
 
-void display_stats_end_game(int correct, int mistakes) {
+void display_stats_end_game(float correct, float mistakes) {
 	//TODO WPM TO USE TIME(60 sec)
 
 	float total_lenght = correct + mistakes;
@@ -60,8 +116,9 @@ void display_stats_end_game(int correct, int mistakes) {
 	cout << "mistakes " << mistakes << endl;
 	cout << "correct  " << correct << endl;
 
-
-	float WPM = total_lenght / 5 / 0.5; 
+	// 1 - minute
+	// 5 - by formula
+	float WPM = (total_lenght / 5 ) / 1; 
 	float accuracy = ((total_lenght - mistakes) / total_lenght) * 100;
 	cout << std::fixed << setprecision(2) << "WPM: " << WPM << endl;
 	cout << "Accuracy: " << accuracy;
@@ -120,7 +177,6 @@ void quit() {
 void a_to_z() {
 	//abcdefghijklmnopqrstuvwxyz., #space or enter#
 	// is reversed every 3 times
-	//A_TO_Z_EXCERSISE_STR
 
 	screenCleaner();
 	
@@ -133,6 +189,7 @@ void a_to_z() {
 	char user_input;
 	int reverse_text = 0;
 
+	//swtiche between them every 3 times they are completed
 	char new_string[29] = "abcdefghijklmnopqrstuvwxyz.,";
 	char reverse[29] = ",.zyxwvutsrqponmlkjihgfedcba";
 	char current_practise_string[29];
@@ -146,38 +203,41 @@ void a_to_z() {
 
 	float correct_letter = 0.0;
 	float mistakes = 0.0;
-	float total_lenght = 0.0;
-
-	//std::future<bool> fobj = std::async(fnprime, 4);
-	//future<bool> fobj =  std::async (fntimer);
-	//std::chrono::milliseconds span(100);
-
-	//while (fobj.wait_for(span) == std::future_status::timeout) {
-	//	cout << std::flush;
-	//	cout << "waiting";
-	//}
 	
 	auto r = std::async(std::launch::async, fntimer);
-	bool result = NULL;
 	
-	//cout << result << endl;
 		
-
 	while (true)
 	{	
-		// allows for one more letter
+
+	
+
 		if (timer_finished == 1) {
 			cout << "\nGame over" << endl;
 			display_stats_end_game(correct_letter, mistakes);
 			Sleep(2);
-			return;
+			
+			cout << "Do you want to save the score";
+			while (true) {
+				user_input = char(_getch());
+
+				cout << user_input;
+				if (user_input == 'y') {
+					cout << "It works";
+				}
+			}
+		
+
+			break;
 		}
 
-		user_input = char(_getch());
+
+		
 		//only accept characters from set number to set number and no backspace or related
-		//add sleep where nothing happens for a few second after stats are shown.
+		user_input = char(_getch());
 
 		if (user_input == current_practise_string[index]) {
+
 			user_string += user_input;
 
 			k = 2;//green
@@ -202,12 +262,11 @@ void a_to_z() {
 			mistakes++;
 		}
 
+
 		user_input = NULL;
 		index++;
 		k = 15;//white
 		SetConsoleTextAttribute(hConsole, k);
-		
-		
 
 
 		//RESET GAME
@@ -227,8 +286,7 @@ void a_to_z() {
 			cout << current_practise_string << endl;
 
 			}
-		}
-
+	}
 
 }
 
@@ -246,9 +304,11 @@ int main() {
 		case 49://1
 			//start game
 			a_to_z();
+			cout << "MAIN MENU" << endl;
 			break;
 		case 50://2
 			//stats
+			readFileAndDisplay();
 			break;
 		case 51://3
 			//about
@@ -258,6 +318,10 @@ int main() {
 			//quit
 			cout << "Thank you for playing ";
 			return 0;
+			break;
+		case 53://5 DEBUG MENU TESTING FUNCTIONS
+			//loadFile();
+			//readFile();
 			break;
 		default:
 			break;

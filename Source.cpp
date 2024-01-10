@@ -41,12 +41,11 @@ void screenCleaner() {
 	system("cls");
 }
 
-void writeStatInFile() {
+void writeStatInFile(string initials, float WPM , float accuracy) {
 	//loads .DAT file it stores statistics
+	ofstream stats("stats.dat", ios::app );
 
-	ofstream stats("stats.dat");
-
-	cout << "kdl 50 87";
+	stats << initials << " " << WPM << " " << accuracy << endl;
 	
 	stats.close();
 }
@@ -98,6 +97,7 @@ void readFileAndDisplay() {
 
 
 void mainMenu() {
+	screenCleaner();
 	cout << "***MAIN MENU***" << endl;
 	cout << "<1> Play" << endl;
 	cout << "<2> Statistics" << endl;
@@ -108,57 +108,105 @@ void mainMenu() {
 
 
 
-void display_stats_end_game(float correct, float mistakes) {
-	//TODO WPM TO USE TIME(60 sec)
+float* display_stats_end_game(float correct, float mistakes) {
 
+	static float stats[2];
 	float total_lenght = correct + mistakes;
-	cout << "lenght " << total_lenght << endl;
 	cout << "mistakes " << mistakes << endl;
 	cout << "correct  " << correct << endl;
 
-	// 1 - minute
+	// 1 - minute 
 	// 5 - by formula
 	float WPM = (total_lenght / 5 ) / 1; 
 	float accuracy = ((total_lenght - mistakes) / total_lenght) * 100;
+
 	cout << std::fixed << setprecision(2) << "WPM: " << WPM << endl;
 	cout << "Accuracy: " << accuracy;
-}
 
-void createUser() {
-	//creating user
-}
+	stats[0] = WPM;
+	stats[1] = accuracy;
 
-int listLesson() {
-	//shows the list of lessons available
-	return 0;
-}
-
-void beginSession() {
-	//start session
-}
-
-
-//  <1> SELECT USER 
-int userSelectMenu() {
-	// It is for selecting the name of users 
-	//which are already defined in the source code.
-	return 0;
-}
-
-int listUser() {
-	//lists the users in the .DAT file
-	return 0;
-}
-
-// <2> STATISTICS
-void statistics() {
+	return stats;
 
 }
 
-// <3> VIEW USER RECORDS
-void user_records() {
-
+void  getInitialsMenu() {
+	screenCleaner();
+	cout << "Enter your initials" << endl;
+	cout << "Up to 3 letters" << endl;
+	cout << "Only letters" << endl;
 }
+
+string getInitials() {
+	getInitialsMenu();
+	string initials = "";
+	int enought_initials = 0; //max 3 initials
+	int user_initials = NULL;
+	bool break_the_loop = false;
+
+	while (!break_the_loop) {
+
+		if (enought_initials == 3) {
+			cout << "Do you want to save you score under " << initials << " initials ?" << endl;
+			cout << "'y' or 'n' " << endl;
+			//y 121 Y 89
+			//n 110 N 78
+
+			int user_input;
+
+
+			while (true) {
+
+				user_input = _getch();
+				if (user_input == 121 || user_input == 121) {
+					return initials;
+				}
+				else if (user_input == 110 || user_input == 78) {
+					// second chance to do initials
+					initials.clear();
+					enought_initials = 0;
+					break_the_loop = false; //sometimes it changes to true
+					getInitialsMenu();
+					break;
+
+				}
+				else {
+					screenCleaner();
+					cout << "Do you want to save you score under " << initials << " initials ?";
+					cout << "'y' or 'n' " << endl;
+
+				}
+			}
+
+
+		
+
+
+		}
+
+		int user_initials = _getche();
+		//97 - 122 uppercase letters
+		//65 - 90 lowercase letters	
+
+		
+		if ((65 <= user_initials && user_initials <= 90) || (97 <= user_initials && user_initials <= 122)) {
+			initials.push_back(toupper(char(user_initials)));
+			getInitialsMenu();
+			cout << initials << endl;
+			enought_initials++;
+		}
+		else {
+			getInitialsMenu();
+			cout << initials << endl;
+		}
+		
+		
+
+		
+	}
+	
+}
+
 
 // <4> ABOUT
 void about() {
@@ -210,20 +258,29 @@ void a_to_z() {
 	while (true)
 	{	
 
-	
-
 		if (timer_finished == 1) {
 			cout << "\nGame over" << endl;
-			display_stats_end_game(correct_letter, mistakes);
+			float* stats = display_stats_end_game(correct_letter, mistakes);
+			//prefer to use pointers, but it gets removed by the time it reaches string construction
+
+			float WPM = stats[0];
+			float accuracy = stats[1];
+
 			Sleep(2);
 			
-			cout << "Do you want to save the score";
+			cout << " " << endl;
+			cout << "Do you want to save the score" << endl;
+			cout << "'y' or 'n' " << endl;
 			while (true) {
 				user_input = char(_getch());
 
+				//TODO ADD THE y n System
 				cout << user_input;
 				if (user_input == 'y') {
-					cout << "It works";
+					//get the initials 
+					string stat = getInitials();
+
+					writeStatInFile(stat, WPM, accuracy);
 				}
 			}
 		
@@ -309,6 +366,9 @@ int main() {
 		case 50://2
 			//stats
 			readFileAndDisplay();
+			cout << "Press any key to go back ....";
+			_getch();
+			mainMenu();
 			break;
 		case 51://3
 			//about
@@ -320,8 +380,7 @@ int main() {
 			return 0;
 			break;
 		case 53://5 DEBUG MENU TESTING FUNCTIONS
-			//loadFile();
-			//readFile();
+			getInitials();
 			break;
 		default:
 			break;
